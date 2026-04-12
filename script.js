@@ -333,4 +333,114 @@
     });
   }
 
+  // ============================================================
+  // 11. Career Application Modal
+  // ============================================================
+  const careerModal      = document.getElementById('career-modal');
+  const modalClose       = document.getElementById('modal-close');
+  const careerForm       = document.getElementById('career-form');
+  const applySuccess     = document.getElementById('apply-success');
+  const applyJobRole     = document.getElementById('apply-job-role');
+  const modalJobTitle    = document.getElementById('modal-job-title');
+  const applyCvInput     = document.getElementById('apply-cv');
+  const fileNameDisplay  = document.getElementById('file-name-display');
+  const applySubmitBtn   = document.getElementById('apply-submit-btn');
+
+  function openApplyModal(jobTitle) {
+    if (!careerModal) return;
+    careerModal.classList.add('open');
+    careerModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden'; // Prevent scroll
+
+    if (applyJobRole) applyJobRole.value = jobTitle;
+    if (modalJobTitle) modalJobTitle.textContent = 'Apply for ' + jobTitle;
+    
+    // Reset form state in case it was used before
+    if (careerForm) careerForm.style.display = 'flex';
+    if (applySuccess) applySuccess.classList.remove('show');
+  }
+
+  function closeApplyModal() {
+    if (!careerModal) return;
+    careerModal.classList.remove('open');
+    careerModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = ''; // Restore scroll
+  }
+
+  // Use event delegation for Apply Now triggers
+  document.addEventListener('click', function(e) {
+    const trigger = e.target.closest('.btn-apply-trigger');
+    if (trigger) {
+      e.preventDefault();
+      const job = trigger.getAttribute('data-job');
+      openApplyModal(job);
+    }
+  });
+
+  // Close listeners
+  if (modalClose) {
+    modalClose.addEventListener('click', closeApplyModal);
+  }
+
+  if (careerModal) {
+    careerModal.addEventListener('click', function(e) {
+      if (e.target === careerModal) closeApplyModal();
+    });
+  }
+
+  // Esc key to close
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && careerModal && careerModal.classList.contains('open')) {
+      closeApplyModal();
+    }
+  });
+
+  // File hint update
+  if (applyCvInput) {
+    applyCvInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        if (fileNameDisplay) {
+          fileNameDisplay.textContent = this.files[0].name;
+          fileNameDisplay.style.color = 'var(--accent-primary)';
+        }
+      } else {
+        if (fileNameDisplay) {
+          fileNameDisplay.textContent = 'Choose a file (PDF, DOCX)';
+          fileNameDisplay.style.color = '';
+        }
+      }
+    });
+  }
+
+  // Form Submission
+  if (careerForm) {
+    careerForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Show loading
+      if (applySubmitBtn) {
+        applySubmitBtn.disabled = true;
+        const originalText = applySubmitBtn.innerHTML;
+        applySubmitBtn.innerHTML = '<svg style="animation: spin 1s linear infinite; width:18px;height:18px;stroke:white;fill:none;stroke-width:2;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10" /></svg> Sending...';
+        
+        // Simulate sending
+        setTimeout(function() {
+          careerForm.style.display = 'none';
+          if (applySuccess) {
+            applySuccess.classList.add('show');
+          }
+          
+          // Reset button (if modal is opened again)
+          setTimeout(function() {
+            applySubmitBtn.disabled = false;
+            applySubmitBtn.innerHTML = originalText;
+            careerForm.reset();
+            if (fileNameDisplay) fileNameDisplay.textContent = 'Choose a file (PDF, DOCX)';
+          }, 500);
+
+        }, 1500);
+      }
+    });
+  }
+
 })();
